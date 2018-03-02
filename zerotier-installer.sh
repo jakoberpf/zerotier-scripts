@@ -78,3 +78,12 @@ $SUDO apt-key add /tmp/zt-gpg-key
 $SUDO apt-get update
 $SUDO apt-get install -y zerotier-one
 $SUDO rm -f /tmp/zt-gpg-key
+
+zerotier-cli join $ZTNETWORK 
+zerotier-cli -j info > zt-info
+ZTADDRESS=$(cat zt-info|jq ".address"| tr -d '"')
+curl -H "Authorization: bearer $ZTAPI" -H "Content-Type: application/json" -X POST -d '{ "name":"'$HOSTNAME'", "config":{ "authorized": true } }' https://my.zerotier.com/api/network/$ZTNETWORK/member/$ZTADDRESS
+curl -H "Authorization: bearer $ZTAPI" https://my.zerotier.com/api/network/$ZTNETWORK/member/$ZTADDRESS > zt-member
+ZTIP=$(cat zt-member | jq ".config.ipAssignments" | tr -d '[]" \n')
+echo $ZTIP > zt-ip
+echo ZeroTier IP: $ZTIP
