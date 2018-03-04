@@ -85,6 +85,7 @@ zerotier-cli join $ZTNETWORK
 zerotier-cli -j info > zt-info
 ZTADDRESS=$(cat zt-info|jq ".address"| tr -d '"')
 curl -H "Authorization: bearer $ZTAPI" -H "Content-Type: application/json" -X POST -d '{ "name":"'$(hostname)'", "config":{ "authorized": true } }' https://my.zerotier.com/api/network/$ZTNETWORK/member/$ZTADDRESS
+sleep 5
 curl -H "Authorization: bearer $ZTAPI" https://my.zerotier.com/api/network/$ZTNETWORK/member/$ZTADDRESS > zt-member
 ZTIP=$(cat zt-member | jq ".config.ipAssignments" | tr -d '[]" \n')
 echo $ZTIP > zt-ip
