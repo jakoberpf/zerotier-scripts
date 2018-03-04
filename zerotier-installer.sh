@@ -3,6 +3,8 @@
 ZT_BASE_URL_HTTPS='https://download.zerotier.com/'
 ZT_BASE_URL_HTTP='http://download.zerotier.com/'
 
+echo Joining Network: $ZTNETWORK
+
 SUDO=
 if [ "$UID" != "0" ]; then
 	if [ -e /usr/bin/sudo -o -e /bin/sudo ]; then
@@ -82,7 +84,7 @@ $SUDO rm -f /tmp/zt-gpg-key
 zerotier-cli join $ZTNETWORK 
 zerotier-cli -j info > zt-info
 ZTADDRESS=$(cat zt-info|jq ".address"| tr -d '"')
-curl -H "Authorization: bearer $ZTAPI" -H "Content-Type: application/json" -X POST -d '{ "name":"'$HOSTNAME'", "config":{ "authorized": true } }' https://my.zerotier.com/api/network/$ZTNETWORK/member/$ZTADDRESS
+curl -H "Authorization: bearer $ZTAPI" -H "Content-Type: application/json" -X POST -d '{ "name":"'$(hostname)'", "config":{ "authorized": true } }' https://my.zerotier.com/api/network/$ZTNETWORK/member/$ZTADDRESS
 curl -H "Authorization: bearer $ZTAPI" https://my.zerotier.com/api/network/$ZTNETWORK/member/$ZTADDRESS > zt-member
 ZTIP=$(cat zt-member | jq ".config.ipAssignments" | tr -d '[]" \n')
 echo $ZTIP > zt-ip
