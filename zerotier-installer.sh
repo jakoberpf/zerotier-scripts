@@ -3,6 +3,14 @@
 ZT_BASE_URL_HTTPS='https://download.zerotier.com/'
 ZT_BASE_URL_HTTP='http://download.zerotier.com/'
 
+ICON_EMOJI=:man-lifting-weights:
+HOSTNAME=$(hostname)
+LOCALIP=$(ip addr show ens160 | grep "inet\b" | awk '{print $2}' | cut -d/ -f1)
+
+if [ -n "$SLACK_WEBHOOK_URL" ]; then
+  pip install slack-webhook-cli
+  slack -u $HOSTNAME -e $ICON_EMOJI "I'm up! My local ip is $LOCALIP. I'm joining ZeroTier network $ZTNETWORK"
+fi
 echo Joining Network: $ZTNETWORK
 
 SUDO=
@@ -84,9 +92,13 @@ $SUDO rm -f /tmp/zt-gpg-key
 zerotier-cli join $ZTNETWORK 
 zerotier-cli -j info > zt-info
 ZTADDRESS=$(cat zt-info|jq ".address"| tr -d '"')
-curl -H "Authorization: bearer $ZTAPI" -H "Content-Type: application/json" -X POST -d '{ "name":"'$(hostname)'", "config":{ "authorized": true } }' https://my.zerotier.com/api/network/$ZTNETWORK/member/$ZTADDRESS
-sleep 5
+if [ -n "$SLACK_WEBHOOK_URL" ]; then slack -u $HOSTNAME -e $ICON_EMOJI "My ZeroTier address is $ZTADDRESS" fi
+curl -H "Authorization: bearer $ZTAPI" -H "Content-Type: application/json" -X POST -d '{ "config":{ "authorized": true } }' https://my.zerotier.com/api/network/$ZTNETWORK/member/$ZTADDRESS
+sleep 15
+curl -H "Authorization: bearer $ZTAPI" -H "Content-Type: application/json" -X POST -d '{ "name":"'$(hostname)'" }' https://my.zerotier.com/api/network/$ZTNETWORK/member/$ZTADDRESS
 curl -H "Authorization: bearer $ZTAPI" https://my.zerotier.com/api/network/$ZTNETWORK/member/$ZTADDRESS > zt-member
 ZTIP=$(cat zt-member | jq ".config.ipAssignments" | tr -d '[]" \n')
-echo $ZTIP > zt-ip
+if [ -n "$SLACK_WEBHOOK_URL" ]; then slack -u $HOSTNAME -e $ICON_EMOJI "My ZeroTier IP is $ZTIP. VM Customization Complete." fi
 echo ZeroTier IP: $ZTIP
+rm zt-info
+rm zt-member
