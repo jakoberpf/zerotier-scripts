@@ -97,7 +97,7 @@ curl -H "Authorization: bearer $ZTAPI" -H "Content-Type: application/json" -X PO
 sleep 20
 curl -H "Authorization: bearer $ZTAPI" -H "Content-Type: application/json" -X POST -d '{ "name":"'$(hostname)'" }' https://my.zerotier.com/api/network/$ZTNETWORK/member/$ZTADDRESS
 sleep 10
-curl -H "Authorization: bearer $ZTAPI" https://my.zerotier.com/api/network/$ZTNETWORK/member/$ZTADDRESS > zt-member
+#curl -H "Authorization: bearer $ZTAPI" https://my.zerotier.com/api/network/$ZTNETWORK/member/$ZTADDRESS > zt-member
 #ZTIP=$(cat zt-member | jq ".config.ipAssignments" | tr -d '[]" \n')
 ZTIP=$(ip addr show zt0 | grep "inet\b" | awk '{print $2}' | cut -d/ -f1)
 if [ -n "$SLACK_WEBHOOK_URL" ]; then slack -u $HOSTNAME -e $ICON_EMOJI "My ZeroTier IP is $ZTIP. VM Customization Complete." ; fi
