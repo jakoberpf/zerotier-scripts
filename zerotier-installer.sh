@@ -7,12 +7,6 @@ ICON_EMOJI=:man-lifting-weights:
 HOSTNAME=$(hostname)
 LOCALIP=$(ip addr show ens160 | grep "inet\b" | awk '{print $2}' | cut -d/ -f1)
 
-if [ -n "$SLACK_WEBHOOK_URL" ]; then
-  pip install slack-webhook-cli
-  slack -u $HOSTNAME -e $ICON_EMOJI "I'm up! My local ip is $LOCALIP. I'm joining ZeroTier network $ZTNETWORK"
-fi
-echo Joining Network: $ZTNETWORK
-
 SUDO=
 if [ "$UID" != "0" ]; then
 	if [ -e /usr/bin/sudo -o -e /bin/sudo ]; then

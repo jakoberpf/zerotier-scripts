@@ -1,3 +1,9 @@
+if [ -n "$SLACK_WEBHOOK_URL" ]; then
+  pip install slack-webhook-cli
+  slack -u $HOSTNAME -e $ICON_EMOJI "I'm up! My local ip is $LOCALIP. I'm joining ZeroTier network $ZTNETWORK"
+fi
+echo Joining Network: $ZTNETWORK
+
 zerotier-cli join $ZTNETWORK 
 zerotier-cli -j info > zt-info
 ZTADDRESS=$(cat zt-info|jq ".address"| tr -d '"')
