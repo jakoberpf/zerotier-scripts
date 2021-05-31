@@ -3,10 +3,6 @@
 ZT_BASE_URL_HTTPS='https://download.zerotier.com/'
 ZT_BASE_URL_HTTP='http://download.zerotier.com/'
 
-ICON_EMOJI=:man-lifting-weights:
-HOSTNAME=$(hostname)
-LOCALIP=$(ip addr show ens160 | grep "inet\b" | awk '{print $2}' | cut -d/ -f1)
-
 SUDO=
 if [ "$UID" != "0" ]; then
 	if [ -e /usr/bin/sudo -o -e /bin/sudo ]; then
