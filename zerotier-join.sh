@@ -28,7 +28,7 @@ COUNTER=9
 while [  $COUNTER -gt 0 ] && [ -z "$ZTIP" ]; do
   ZTIP=$(ip addr show zt0 | grep "inet\b" | awk '{print $2}' | cut -d/ -f1)
   if [ -n "$ZTIP" ]; then
-    if [ -n "$SLACK_WEBHOOK_URL" ]; then slack -u $HOSTNAME -e $ICON_EMOJI "My ZeroTier IP is $ZTIP. VM customization Complete." ; fi
+    if [ -n "$SLACK_WEBHOOK_URL" ]; then slack -u $HOSTNAME -e $ICON_EMOJI "My ZeroTier IP is $ZTIP." ; fi
     echo ZeroTier IP: $ZTIP
   fi
   sleep 10
@@ -36,7 +36,7 @@ while [  $COUNTER -gt 0 ] && [ -z "$ZTIP" ]; do
 done
 
 if [ -z "$ZTIP" ]; then
-  if [ -n "$SLACK_WEBHOOK_URL" ]; then slack -u $HOSTNAME -e $ICON_EMOJI "Could not determine ZeroTier IP. VM customization complete." ; fi
+  if [ -n "$SLACK_WEBHOOK_URL" ]; then slack -u $HOSTNAME -e $ICON_EMOJI "Could not determine ZeroTier IP." ; fi
 fi
 
 rm zt-info
