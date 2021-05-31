@@ -13,7 +13,7 @@ echo Joining Network: $ZTNETWORK
 zerotier-cli join $ZTNETWORK 
 zerotier-cli -j info > zt-info
 
-apt install jq
+apt install jq -y
 ZTADDRESS=$(cat zt-info | jq ".address" | tr -d '"')
 
 if [ -n "$SLACK_WEBHOOK_URL" ]; then slack -u $HOSTNAME -e $ICON_EMOJI "My ZeroTier address is $ZTADDRESS" ; fi
