@@ -20,3 +20,11 @@ jobs:
         run: cd test && docker-compose up -d
       - name: Verify testing backend
         run: sudo cat ./test/data/controller/authtoken.secret
+      - name: Get controller api token
+        run: echo "ZT_TOKEN=$(cat ./test/data/controller/authtoken.secret)" >> $GITHUB_ENV && echo "$GITHUB_ENV"
+      - name: Get controller node id
+        run: echo "ZT_TOKEN=$(cat ./test/data/controller/authtoken.secret)" >> $GITHUB_ENV && echo "$GITHUB_ENV"
+      - name: Create new network
+        run: echo "ZT_TOKEN=$(cat ./test/data/controller/authtoken.secret)" >> $GITHUB_ENV && echo "$GITHUB_ENV"
+
+        curl -X POST "http://localhost:9993/controller/network/${NODEID}______" -H "X-ZT1-AUTH: ${TOKEN}" -d {}
