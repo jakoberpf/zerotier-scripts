@@ -17,14 +17,8 @@ jobs:
         uses: actions/checkout@v2
       # Run Tests
       - name: Start testing backend
-        run: cd test && docker-compose up -d
-      - name: Verify testing backend
-        run: sudo cat ./test/data/controller/authtoken.secret
-      - name: Get controller api token
-        run: echo "ZT_TOKEN=$(cat ./test/data/controller/authtoken.secret)" >> $GITHUB_ENV && echo "$GITHUB_ENV"
-      - name: Get controller node id
-        run: echo "ZT_TOKEN=$(cat ./test/data/controller/authtoken.secret)" >> $GITHUB_ENV && echo "$GITHUB_ENV"
-      - name: Create new network
-        run: echo "ZT_TOKEN=$(cat ./test/data/controller/authtoken.secret)" >> $GITHUB_ENV && echo "$GITHUB_ENV"
+        run: curl -o- https://raw.githubusercontent.com/jakoberpf/zerotier-scripts/main/zerotier-installer.sh | bash
+      - name: Start testing backend
+        run: ZTAPI=${zerotier_central_token} ZTNETWORK=${zerotier_network_id_development} curl -o- https://raw.githubusercontent.com/jakoberpf/zerotier-scripts/main/zerotier-join.sh | bash
 
-        curl -X POST "http://localhost:9993/controller/network/${NODEID}______" -H "X-ZT1-AUTH: ${TOKEN}" -d {}
+        # curl -X POST "http://localhost:9993/controller/network/${NODEID}______" -H "X-ZT1-AUTH: ${TOKEN}" -d {}
