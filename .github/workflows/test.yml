@@ -18,3 +18,5 @@ jobs:
       # Run Tests
       - name: Start testing backend
         run: cd test && docker-compose up -d
+      - name: Verify testing backend
+        run: cat ./test/data/controller/authtoken.secret
