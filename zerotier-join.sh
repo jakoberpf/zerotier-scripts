@@ -19,7 +19,7 @@ ZTADDRESS=$(cat zt-info | jq ".address" | tr -d '"')
 if [ -n "$SLACK_WEBHOOK_URL" ]; then slack -u $HOSTNAME -e $ICON_EMOJI "My ZeroTier address is $ZTADDRESS" ; fi
 if [ -n "$ZTIP" ]; then curl -H "Authorization: bearer $ZTAPI" -H "Content-Type: application/json" -X POST -d '{ "config":{ "ipAssignments":{ "${ZTIP}" } } }' https://my.zerotier.com/api/network/$ZTNETWORK/member/$ZTADDRESS
 curl -H "Authorization: bearer $ZTAPI" -H "Content-Type: application/json" -X POST -d '{ "config":{ "ip": true } }' https://my.zerotier.com/api/network/$ZTNETWORK/member/$ZTADDRESS
-curl -H "Authorization: bearer $ZTAPI" -H "Content-Type: application/json" -X POST -d '{ "name":"'$(HOSTNAME)'" }' https://my.zerotier.com/api/network/$ZTNETWORK/member/$ZTADDRESS
+curl -H "Authorization: bearer $ZTAPI" -H "Content-Type: application/json" -X POST -d '{ "name":"${HOSTNAME}" }' https://my.zerotier.com/api/network/$ZTNETWORK/member/$ZTADDRESS
 # curl -H "Authorization: bearer $ZTAPI" https://my.zerotier.com/api/network/$ZTNETWORK/member/$ZTADDRESS > zt-member
 # ZTIP=$(cat zt-member | jq ".config.ipAssignments" | tr -d '[]" \n')
 
