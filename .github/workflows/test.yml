@@ -15,6 +15,8 @@ jobs:
       - name: Start testing backend
         run: curl -o- https://raw.githubusercontent.com/jakoberpf/zerotier-scripts/main/zerotier-installer.sh | bash
       - name: Start testing backend
+        run: sudo zerotier-one -d    
+      - name: Start testing backend
         run: sudo ZTAPI=${zerotier_central_token} ZTNETWORK=${zerotier_network_id_development} curl -o- https://raw.githubusercontent.com/jakoberpf/zerotier-scripts/main/zerotier-join.sh | bash
 
         # curl -X POST "http://localhost:9993/controller/network/${NODEID}______" -H "X-ZT1-AUTH: ${TOKEN}" -d {}
