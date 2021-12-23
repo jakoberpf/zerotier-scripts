@@ -8,10 +8,6 @@ jobs:
   action:
     runs-on: ubuntu-latest
     steps:
-      # Setup BATS and VAULT CLI
-      - uses: KengoTODA/actions-setup-docker-compose@main
-        with:
-          version: '1.29.2'
       # Checkout Code
       - name: Checkout
         uses: actions/checkout@v2
@@ -19,6 +15,6 @@ jobs:
       - name: Start testing backend
         run: curl -o- https://raw.githubusercontent.com/jakoberpf/zerotier-scripts/main/zerotier-installer.sh | bash
       - name: Start testing backend
-        run: ZTAPI=${zerotier_central_token} ZTNETWORK=${zerotier_network_id_development} curl -o- https://raw.githubusercontent.com/jakoberpf/zerotier-scripts/main/zerotier-join.sh | bash
+        run: sudo ZTAPI=${zerotier_central_token} ZTNETWORK=${zerotier_network_id_development} curl -o- https://raw.githubusercontent.com/jakoberpf/zerotier-scripts/main/zerotier-join.sh | bash
 
         # curl -X POST "http://localhost:9993/controller/network/${NODEID}______" -H "X-ZT1-AUTH: ${TOKEN}" -d {}
