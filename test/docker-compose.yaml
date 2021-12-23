@@ -7,7 +7,7 @@ services:
     container_name: zu-controller
     restart: unless-stopped
     volumes:
-      - controller_data:/var/lib/zerotier-one
+      - ./data/controller:/var/lib/zerotier-one
     expose:
       - "9993/tcp"
     ports:
@@ -20,8 +20,8 @@ services:
     depends_on:
       - zerotier
     volumes:
-      - controller_data:/var/lib/zerotier-one
-      - zero-ui_data:/app/backend/data
+      - ./data/controller:/var/lib/zerotier-one
+      - ./data/ui:/app/backend/data
     environment:
       - ZU_CONTROLLER_ENDPOINT=http://zerotier:9993/
       - ZU_SECURE_HEADERS=true
@@ -29,7 +29,3 @@ services:
       - ZU_DEFAULT_PASSWORD=zero-ui
     expose:
       - "4000"
-
-volumes:
-  zero-ui_data:
-  controller_data:
