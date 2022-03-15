@@ -69,7 +69,19 @@ Awqahjkq87yxOYYTnJmr2OZtQuFboymfMhNqj3G2DYmZ/ZIXXPgwHx0fnd3R0Q==
 END_OF_KEY
 echo '-----END PGP PUBLIC KEY BLOCK-----' >>/tmp/zt-gpg-key
 
-echo "deb ${ZT_BASE_URL_HTTP}debian/xenial xenial main" >/tmp/zt-sources-list
+if [[ -r /etc/os-release ]]; then
+    . /etc/os-release
+    if [[ $ID = ubuntu ]]; then
+        UBUNTU_VERSION_NAME=$( . /etc/os-release; echo ${VERSION_CODENAME/*, /} )
+        echo "Running Ubuntu $UBUNTU_VERSION_NAME"
+    else
+        echo "Not running an Ubuntu distribution. ID=$ID, VERSION=$VERSION"
+    fi
+else
+    echo "Not running a distribution with /etc/os-release available"
+fi
+
+echo "deb ${ZT_BASE_URL_HTTP}debian/$UBUNTU_VERSION_NAME $UBUNTU_VERSION_NAME main" >/tmp/zt-sources-list
 
 $SUDO mv -f /tmp/zt-sources-list /etc/apt/sources.list.d/zerotier.list
 $SUDO chown 0 /etc/apt/sources.list.d/zerotier.list
