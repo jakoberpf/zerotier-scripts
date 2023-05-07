@@ -8,13 +8,13 @@ jobs:
   action:
     runs-on: ubuntu-latest
     steps:
-      # Setup BATS and VAULT CLI
-      - uses: KengoTODA/actions-setup-docker-compose@main
-        with:
-          version: '1.29.2'
-      # Checkout Code
       - name: Checkout
-        uses: actions/checkout@v2
-      # Run Tests
-      - name: Start testing backend
-        run: cd test && docker-compose up -d
+        uses: actions/checkout@v3
+      - name: Build Images
+        working-directory: ./test
+        run: |
+          docker compose -f docker-compose.yaml build
+      - name: Run Images
+        working-directory: ./test
+        run: |
+          ./bats/bin/bats test.bats
