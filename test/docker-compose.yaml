@@ -2,6 +2,16 @@ version: "3.3"
 
 services:
 
+  # client:
+  #   build: ../
+  #   image: jakoberpf/zerotier-client
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - zerotier
+  #     - zero-ui
+  #   volumes:
+  #     - client_data:/var/lib/zerotier-one
+
   zerotier:
     image: dec0dos/zerotier-controller:latest
     container_name: zu-controller
@@ -10,8 +20,6 @@ services:
       - controller_data:/var/lib/zerotier-one
     expose:
       - "9993/tcp"
-    ports:
-      - "9993:9993/udp"
 
   zero-ui:
     image: dec0dos/zero-ui:latest
@@ -29,7 +37,10 @@ services:
       - ZU_DEFAULT_PASSWORD=zero-ui
     expose:
       - "4000"
+    ports:
+      - "4000:4000"
 
 volumes:
-  zero-ui_data:
+  # client_data:
   controller_data:
+  zero-ui_data:
