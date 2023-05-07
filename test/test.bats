@@ -32,16 +32,16 @@ setup() {
 }
 
 @test "should install zerotier" {
-    run bash -c "docker exec -u root -i zerotier-scripts-client-1 /zerotier-installer.sh | tail -2"
+    run bash -c "docker exec -u root zerotier-scripts-client-1 /zerotier-installer.sh | tail -2"
     assert_output --partial 'Success!'
-    run bash -c "docker exec -u root -i zerotier-scripts-client-1 zerotier-cli info | cut -d ' ' -f 1 | xargs"
+    run bash -c "docker exec -u root zerotier-scripts-client-1 zerotier-cli info | cut -d ' ' -f 1 | xargs"
     assert_output '200'
 }
 
 @test "should join a network (without authentication, without address)" {
-    run bash -c "docker exec -u root -i zerotier-scripts-client-1 /zerotier-installer.sh | tail -2"
+    run bash -c "docker exec -u root zerotier-scripts-client-1 /zerotier-installer.sh | tail -2"
     assert_output --partial 'Success!'
-    run bash -c "docker exec -u root -i zerotier-scripts-client-1 zerotier-cli info | cut -d ' ' -f 1 | xargs"
+    run bash -c "docker exec -u root zerotier-scripts-client-1 zerotier-cli info | cut -d ' ' -f 1 | xargs"
     assert_output '200'
     # networks=$(zt_get_networks $TMP_ZEROTIER_TOKEN)
     # run echo "$networks" | jq -r '.[] | .id'
@@ -49,9 +49,9 @@ setup() {
 }
 
 @test "should join a network (with authentication, with address)" {
-    run bash -c "docker exec -u root -i zerotier-scripts-client-1 /zerotier-installer.sh | tail -2"
+    run bash -c "docker exec -u root zerotier-scripts-client-1 /zerotier-installer.sh | tail -2"
     assert_output --partial 'Success!'
-    run bash -c "docker exec -u root -i zerotier-scripts-client-1 zerotier-cli info | cut -d ' ' -f 1 | xargs"
+    run bash -c "docker exec -u root zerotier-scripts-client-1 zerotier-cli info | cut -d ' ' -f 1 | xargs"
     assert_output '200'
 }
 
