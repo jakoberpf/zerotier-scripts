@@ -31,7 +31,7 @@ setup() {
     if [ "$(zt_get_networks $TMP_ZEROTIER_TOKEN | xargs)"="[]" ]; then
         echo "No networks created, creating new one"
         zt_create_network $TMP_ZEROTIER_TOKEN
-        zt_get_networks $TMP_ZEROTIER_TOKEN
+        # zt_get_networks $TMP_ZEROTIER_TOKEN
     else
         echo "There is already a network created"
     fi 
