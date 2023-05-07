@@ -28,7 +28,7 @@ setup() {
 
     TMP_ZEROTIER_TOKEN=$(zt_get_token)
 
-    zt_get_networks $TMP_ZEROTIER_TOKEN | jq -r '.[] | .id'
+    # zt_get_networks $TMP_ZEROTIER_TOKEN | jq -r '.[] | .id'
 }
 
 @test "should install zerotier" {
