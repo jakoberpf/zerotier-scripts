@@ -28,7 +28,13 @@ setup() {
 
     TMP_ZEROTIER_TOKEN=$(zt_get_token)
 
-    # zt_get_networks $TMP_ZEROTIER_TOKEN | jq -r '.[] | .id'
+    if [ "$(zt_get_networks $TMP_ZEROTIER_TOKEN | xargs)"="[]" ]; then
+        echo "No networks created, creating new one"
+        zt_create_network $TMP_ZEROTIER_TOKEN
+        zt_get_networks $TMP_ZEROTIER_TOKEN
+    else
+        echo "There is already a network created"
+    fi 
 }
 
 @test "should install zerotier" {
