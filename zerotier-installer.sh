@@ -358,8 +358,6 @@ echo "*** Success! You are ZeroTier address [ `cat /var/lib/zerotier-one/identit
 echo
 ## END REPLACE
 
-# /usr/sbin/zerotier-one -d
-
 # zerotier-cli join $ZTNETWORK
 
 # ZTADDRESS=$(zerotier-cli -j info|jq ".address"| tr -d '"')
