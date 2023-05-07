@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM centos:7
 
 COPY zerotier-installer.sh /zerotier-installer.sh
 COPY zerotier-join.sh /zerotier-join.sh
