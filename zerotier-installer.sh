@@ -3,6 +3,43 @@
 ZT_BASE_URL_HTTPS='https://download.zerotier.com/'
 ZT_BASE_URL_HTTP='http://download.zerotier.com/'
 
+ICON_EMOJI=:man-lifting-weights:
+HOSTNAME=$(hostname)
+LOCALIP=$(ip addr show | grep "inet " | grep -v "127.0.0.1/8" | awk '{print $2}')
+
+if [ -n "$SLACK_WEBHOOK_URL" ]; then
+  pip install slack-webhook-cli
+  slack -u $HOSTNAME -e $ICON_EMOJI "I'm up! My local ip is $LOCALIP. I'm joining ZeroTier network $ZTNETWORK"
+fi
+
+# from https://install.zerotier.com/
+## START REPLACE
+#
+# ZeroTier install script
+#
+# All this script does is determine your OS and/or distribution and then add the correct
+# repository or download the correct package and install it. It then starts the service
+# and prints your device's ZeroTier address.
+#
+
+echo
+echo '*** ZeroTier Service Quick Install for Unix-like Systems'
+echo
+echo '*** Tested OSes / distributions:'
+echo
+echo '***   MacOS (10.13+) (just installs ZeroTier One.pkg)'
+echo '***   Debian Linux (7+)'
+echo '***   RedHat/CentOS Linux (6+)'
+echo '***   Fedora Linux (16+)'
+echo '***   SuSE Linux (12+)'
+echo '***   Mint Linux (18+)'
+echo
+echo '*** Supported architectures vary by OS / distribution. We try to support'
+echo '*** every system architecture supported by the target.'
+echo
+echo '*** Please report problems to contact@zerotier.com and we will try to fix.'
+echo
+
 SUDO=
 if [ "$UID" != "0" ]; then
 	if [ -e /usr/bin/sudo -o -e /bin/sudo ]; then
@@ -11,6 +48,35 @@ if [ "$UID" != "0" ]; then
 		echo '*** This quick installer script requires root privileges.'
 		exit 0
 	fi
+fi
+
+# Detect MacOS and install .pkg file there
+if [ -e /usr/bin/uname ]; then
+	if [ "`/usr/bin/uname -s`" = "Darwin" ]; then
+		echo '*** Detected MacOS / Darwin, downloading and installing Mac .pkg...'
+		$SUDO rm -f "/tmp/ZeroTier One.pkg"
+		curl -s ${ZT_BASE_URL_HTTPS}dist/ZeroTier%20One.pkg >"/tmp/ZeroTier One.pkg"
+		$SUDO installer -pkg "/tmp/ZeroTier One.pkg" -target /
+
+		echo
+		echo '*** Waiting for identity generation...'
+
+		while [ ! -f "/Library/Application Support/ZeroTier/One/identity.secret" ]; do
+			sleep 1
+		done
+
+		echo
+		echo "*** Success! You are connected to port `cat '/Library/Application Support/ZeroTier/One/identity.public' | cut -d : -f 1` of Earth's planetary smart switch."
+		echo
+
+		exit 0
+	fi
+fi
+
+# Detect already-installed on Linux
+if [ -f /usr/sbin/zerotier-one ]; then
+	echo '*** ZeroTier appears to already be installed.'
+	exit 0
 fi
 
 rm -f /tmp/zt-gpg-key
@@ -69,24 +135,250 @@ Awqahjkq87yxOYYTnJmr2OZtQuFboymfMhNqj3G2DYmZ/ZIXXPgwHx0fnd3R0Q==
 END_OF_KEY
 echo '-----END PGP PUBLIC KEY BLOCK-----' >>/tmp/zt-gpg-key
 
-if [[ -r /etc/os-release ]]; then
-    . /etc/os-release
-    if [[ $ID = ubuntu ]]; then
-        UBUNTU_VERSION_NAME=$( . /etc/os-release; echo ${VERSION_CODENAME/*, /} )
-        echo "Running Ubuntu $UBUNTU_VERSION_NAME"
-    else
-        echo "Not running an Ubuntu distribution. ID=$ID, VERSION=$VERSION"
-    fi
-else
-    echo "Not running a distribution with /etc/os-release available"
+echo '*** Detecting Linux Distribution'
+echo
+
+if [ -f /etc/debian_version ]; then
+	dvers=`cat /etc/debian_version | cut -d '.' -f 1 | cut -d '/' -f 1`
+	$SUDO rm -f /tmp/zt-sources-list
+
+	if [ -f /etc/lsb-release -a -n "`cat /etc/lsb-release 2>/dev/null | grep -F -i LinuxMint`" ]; then
+		# Linux Mint -> Ubuntu 'xenial'
+		echo '*** Found Linux Mint, creating /etc/apt/sources.list.d/zerotier.list'
+		echo "deb ${ZT_BASE_URL_HTTP}debian/xenial xenial main" >/tmp/zt-sources-list
+	elif [ -f /etc/lsb-release -a -n "`cat /etc/lsb-release 2>/dev/null | grep -F trusty`" ]; then
+		# Ubuntu 'trusty'
+		echo '*** Found Ubuntu, creating /etc/apt/sources.list.d/zerotier.list'
+		echo "deb ${ZT_BASE_URL_HTTP}debian/trusty trusty main" >/tmp/zt-sources-list
+	elif [ -f /etc/lsb-release -a -n "`cat /etc/lsb-release 2>/dev/null | grep -F wily`" ]; then
+		# Ubuntu 'wily'
+		echo '*** Found Ubuntu, creating /etc/apt/sources.list.d/zerotier.list'
+		echo "deb ${ZT_BASE_URL_HTTP}debian/wily wily main" >/tmp/zt-sources-list
+	elif [ -f /etc/lsb-release -a -n "`cat /etc/lsb-release 2>/dev/null | grep -F xenial`" ]; then
+		# Ubuntu 'xenial'
+		echo '*** Found Ubuntu, creating /etc/apt/sources.list.d/zerotier.list'
+		echo "deb ${ZT_BASE_URL_HTTP}debian/xenial xenial main" >/tmp/zt-sources-list
+	elif [ -f /etc/lsb-release -a -n "`cat /etc/lsb-release 2>/dev/null | grep -F zesty`" ]; then
+		# Ubuntu 'zesty'
+		echo '*** Found Ubuntu, creating /etc/apt/sources.list.d/zerotier.list'
+		echo "deb ${ZT_BASE_URL_HTTP}debian/zesty zesty main" >/tmp/zt-sources-list
+	elif [ -f /etc/lsb-release -a -n "`cat /etc/lsb-release 2>/dev/null | grep -F precise`" ]; then
+		# Ubuntu 'precise'
+		echo '*** Found Ubuntu, creating /etc/apt/sources.list.d/zerotier.list'
+		echo "deb ${ZT_BASE_URL_HTTP}debian/precise precise main" >/tmp/zt-sources-list
+	elif [ -f /etc/lsb-release -a -n "`cat /etc/lsb-release 2>/dev/null | grep -F artful`" ]; then
+		# Ubuntu 'artful'
+		echo '*** Found Ubuntu, creating /etc/apt/sources.list.d/zerotier.list'
+		echo "deb ${ZT_BASE_URL_HTTP}debian/artful artful main" >/tmp/zt-sources-list
+	elif [ -f /etc/lsb-release -a -n "`cat /etc/lsb-release 2>/dev/null | grep -F bionic`" ]; then
+		# Ubuntu 'bionic'
+		echo '*** Found Ubuntu, creating /etc/apt/sources.list.d/zerotier.list'
+		echo "deb ${ZT_BASE_URL_HTTP}debian/bionic bionic main" >/tmp/zt-sources-list
+	elif [ -f /etc/lsb-release -a -n "`cat /etc/lsb-release 2>/dev/null | grep -F yakkety`" ]; then
+		# Ubuntu 'yakkety'
+		echo '*** Found Ubuntu, creating /etc/apt/sources.list.d/zerotier.list'
+		echo "deb ${ZT_BASE_URL_HTTP}debian/yakkety yakkety main" >/tmp/zt-sources-list
+	elif [ -f /etc/lsb-release -a -n "`cat /etc/lsb-release 2>/dev/null | grep -F disco`" ]; then
+		# Ubuntu 'disco'
+		echo '*** Found Ubuntu, creating /etc/apt/sources.list.d/zerotier.list'
+		echo "deb ${ZT_BASE_URL_HTTP}debian/disco disco main" >/tmp/zt-sources-list
+	elif [ -f /etc/lsb-release -a -n "`cat /etc/lsb-release 2>/dev/null | grep -F focal`" ]; then
+		# Ubuntu 'focal'
+		echo '*** Found Ubuntu, creating /etc/apt/sources.list.d/zerotier.list'
+		echo "deb ${ZT_BASE_URL_HTTP}debian/focal focal main" >/tmp/zt-sources-list
+	elif [ -f /etc/lsb-release -a -n "`cat /etc/lsb-release 2>/dev/null | grep -F hirsute`" ]; then
+		# Ubuntu 'hirsute'
+		echo '*** Found Ubuntu, creating /etc/apt/sources.list.d/zerotier.list'
+		echo "deb ${ZT_BASE_URL_HTTP}debian/bionic bionic main" >/tmp/zt-sources-list
+	elif [ -f /etc/lsb-release -a -n "`cat /etc/lsb-release 2>/dev/null | grep -F impish`" ]; then
+		# Ubuntu 'impish'
+		echo '*** Found Ubuntu, creating /etc/apt/sources.list.d/zerotier.list'
+		echo "deb ${ZT_BASE_URL_HTTP}debian/bionic bionic main" >/tmp/zt-sources-list
+	elif [ -f /etc/lsb-release -a '(' -n "`cat /etc/lsb-release 2>/dev/null | grep -F jammy`" -o -n "`cat /etc/lsb-release 2>/dev/null | grep -F kinetic`" ')' ]; then
+		# Ubuntu 'jammy' or 'kinetic'
+		echo '*** Found Ubuntu, creating /etc/apt/sources.list.d/zerotier.list'
+		echo "deb ${ZT_BASE_URL_HTTP}debian/jammy jammy main" >/tmp/zt-sources-list
+	elif [ "$dvers" = "6" -o "$dvers" = "squeeze" ]; then
+		# Debian 'squeeze'
+		echo '*** Found Debian, creating /etc/apt/sources.list.d/zerotier.list'
+		echo "deb ${ZT_BASE_URL_HTTP}debian/squeeze squeeze main" >/tmp/zt-sources-list
+	elif [ "$dvers" = "7" -o "$dvers" = "wheezy" ]; then
+		# Debian 'wheezy'
+		echo '*** Found Debian, creating /etc/apt/sources.list.d/zerotier.list'
+		echo "deb ${ZT_BASE_URL_HTTP}debian/wheezy wheezy main" >/tmp/zt-sources-list
+	elif [ "$dvers" = "8" -o "$dvers" = "jessie" ]; then
+		# Debian 'jessie'
+		echo '*** Found Debian, creating /etc/apt/sources.list.d/zerotier.list'
+		echo "deb ${ZT_BASE_URL_HTTP}debian/jessie jessie main" >/tmp/zt-sources-list
+	elif [ "$dvers" = "9" -o "$dvers" = "stretch" ]; then
+		# Debian 'stretch'
+		echo '*** Found Debian, creating /etc/apt/sources.list.d/zerotier.list'
+		echo "deb ${ZT_BASE_URL_HTTP}debian/stretch stretch main" >/tmp/zt-sources-list
+	elif [ "$dvers" = "10" -o "$dvers" = "buster" -o "$dvers" = "parrot" ]; then
+		# Debian 'buster'
+		echo '*** Found Debian, creating /etc/apt/sources.list.d/zerotier.list'
+		echo "deb ${ZT_BASE_URL_HTTP}debian/buster buster main" >/tmp/zt-sources-list
+	elif [ "$dvers" = "11" -o "$dvers" = "bullseye" ]; then
+		# Debian 'bullseye'
+		echo '*** Found Debian, creating /etc/apt/sources.list.d/zerotier.list'
+		echo "deb ${ZT_BASE_URL_HTTP}debian/bullseye bullseye main" >/tmp/zt-sources-list
+	elif [ "$dvers" = "testing" -o "$dvers" = "sid" -o "$dvers" = "bookworm" ]; then
+		# Debian 'testing', 'sid', and 'bookworm' -> Debian 'bookworm'
+		echo '*** Found Debian, creating /etc/apt/sources.list.d/zerotier.list'
+		echo "deb ${ZT_BASE_URL_HTTP}debian/bookworm bookworm main" >/tmp/zt-sources-list
+	else
+		# Use Debian "buster" for unrecognized Debians
+		echo '*** Found Debian or Debian derivative, creating /etc/apt/sources.list.d/zerotier.list'
+		echo "deb ${ZT_BASE_URL_HTTP}debian/buster buster main" >/tmp/zt-sources-list
+	fi
+
+	$SUDO apt-get update -y
+	$SUDO apt-get install -y gpg
+	$SUDO mv -f /tmp/zt-sources-list /etc/apt/sources.list.d/zerotier.list
+	$SUDO chown 0 /etc/apt/sources.list.d/zerotier.list
+	$SUDO chgrp 0 /etc/apt/sources.list.d/zerotier.list
+
+	$SUDO chmod a+r /tmp/zt-gpg-key
+	if [ -d /etc/apt/trusted.gpg.d ]; then
+		$SUDO gpg --dearmor < /tmp/zt-gpg-key > /etc/apt/trusted.gpg.d/zerotier-debian-package-key.gpg
+	else
+		$SUDO apt-key add /tmp/zt-gpg-key
+	fi
+	$SUDO rm -f /tmp/zt-gpg-key
+
+	echo
+	echo '*** Installing zerotier-one package...'
+
+	# Pre-1.1.6 Debian package did not properly enumerate its files, causing
+	# problems when we try to replace it. So just delete them to force.
+	if [ -d /var/lib/zerotier-one ]; then
+		$SUDO rm -f /etc/init.d/zerotier-one /etc/systemd/system/multi-user.target.wants/zerotier-one.service /var/lib/zerotier-one/zerotier-one /usr/local/bin/zerotier-cli /usr/bin/zerotier-cli /usr/local/bin/zero
+	fi
+
+	cat /dev/null | $SUDO apt-get update
+	cat /dev/null | $SUDO apt-get install -y zerotier-one
+elif [ -f /etc/SuSE-release -o -f /etc/suse-release -o -f /etc/SUSE-brand -o -f /etc/SuSE-brand -o -f /etc/suse-brand ]; then
+	echo '*** Found SuSE, adding zypper YUM repo...'
+	cat /dev/null | $SUDO zypper addrepo -t YUM -g ${ZT_BASE_URL_HTTP}redhat/el/7 zerotier
+	cat /dev/null | $SUDO rpm --import /tmp/zt-gpg-key
+
+	echo
+	echo '*** Installing zeortier-one package...'
+
+	cat /dev/null | $SUDO zypper install -y zerotier-one
+elif [ -d /etc/yum.repos.d ]; then
+	baseurl="${ZT_BASE_URL_HTTP}redhat/el/7"
+	if [ -n "`cat /etc/redhat-release 2>/dev/null | grep -i fedora`" ]; then
+		echo "*** Found Fedora, creating /etc/yum.repos.d/zerotier.repo"
+		fedora_release="`cat /etc/os-release | grep -F VERSION_ID= | cut -d = -f 2`"
+		if [ -n "$fedora_release" ]; then
+			baseurl="${ZT_BASE_URL_HTTP}redhat/fc/$fedora_release"
+		else
+			baseurl="${ZT_BASE_URL_HTTP}redhat/fc/22"
+		fi
+	elif [ -n "`cat /etc/redhat-release 2>/dev/null | grep -i centos`" -o -n "`cat /etc/redhat-release 2>/dev/null | grep -i enterprise`" -o -n "`cat /etc/redhat-release 2>/dev/null | grep -i rocky`" ]; then
+		echo "*** Found RHEL/CentOS/Rocky, creating /etc/yum.repos.d/zerotier.repo"
+		baseurl="${ZT_BASE_URL_HTTP}redhat/el/\$releasever"
+	elif [ -n "`cat /etc/system-release 2>/dev/null | grep -i amazon`" ]; then
+		echo "*** Found Amazon (CentOS/RHEL based), creating /etc/yum.repos.d/zerotier.repo"
+		if [ -n "`cat /etc/system-release 2>/dev/null | grep -F 'Amazon Linux 2'`" ]; then
+			baseurl="${ZT_BASE_URL_HTTP}redhat/el/7"
+		else
+			baseurl="${ZT_BASE_URL_HTTP}redhat/amzn1/2016.03"
+		fi
+	else
+		echo "*** Found unknown yum-based repo, using el/7, creating /etc/yum.repos.d/zerotier.repo"
+	fi
+
+	$SUDO rpm --import /tmp/zt-gpg-key
+
+	$SUDO rm -f /tmp/zerotier.repo
+	echo '[zerotier]' >/tmp/zerotier.repo
+	echo 'name=ZeroTier, Inc. RPM Release Repository' >>/tmp/zerotier.repo
+	echo "baseurl=$baseurl" >>/tmp/zerotier.repo
+	echo 'enabled=1' >>/tmp/zerotier.repo
+	echo 'gpgcheck=1' >>/tmp/zerotier.repo
+
+	$SUDO mv -f /tmp/zerotier.repo /etc/yum.repos.d/zerotier.repo
+	$SUDO chown 0 /etc/yum.repos.d/zerotier.repo
+	$SUDO chgrp 0 /etc/yum.repos.d/zerotier.repo
+
+	echo
+	echo '*** Installing ZeroTier service package...'
+
+	if [ -e /usr/bin/dnf ]; then
+		cat /dev/null | $SUDO dnf install -y zerotier-one
+	else
+		cat /dev/null | $SUDO yum install -y zerotier-one
+	fi
 fi
 
-echo "deb ${ZT_BASE_URL_HTTP}debian/$UBUNTU_VERSION_NAME $UBUNTU_VERSION_NAME main" >/tmp/zt-sources-list
-
-$SUDO mv -f /tmp/zt-sources-list /etc/apt/sources.list.d/zerotier.list
-$SUDO chown 0 /etc/apt/sources.list.d/zerotier.list
-$SUDO chgrp 0 /etc/apt/sources.list.d/zerotier.list
-$SUDO apt-key add /tmp/zt-gpg-key
-$SUDO apt-get update
-$SUDO apt-get install -y zerotier-one
 $SUDO rm -f /tmp/zt-gpg-key
+
+if [ ! -e /usr/sbin/zerotier-one ]; then
+	echo
+	echo '*** Package installation failed! Unfortunately there may not be a package'
+	echo '*** for your architecture or distribution. For the source go to:'
+	echo '*** https://github.com/zerotier/ZeroTierOne'
+	echo
+	exit 1
+fi
+
+echo
+echo '*** Enabling and starting ZeroTier service...'
+
+if [ -e /usr/bin/systemctl -o -e /usr/sbin/systemctl -o -e /sbin/systemctl -o -e /bin/systemctl ]; then
+	$SUDO systemctl enable zerotier-one
+	$SUDO systemctl start zerotier-one
+	if [ "$?" != "0" ]; then
+		echo
+		echo '*** Package installed but cannot start service! You may be in a Docker'
+		echo '*** container or using a non-standard init service.'
+		echo
+		exit 1
+	fi
+else
+	if [ -e /sbin/update-rc.d -o -e /usr/sbin/update-rc.d -o -e /bin/update-rc.d -o -e /usr/bin/update-rc.d ]; then
+		$SUDO update-rc.d zerotier-one defaults
+	else
+		$SUDO chkconfig zerotier-one on
+	fi
+	$SUDO /etc/init.d/zerotier-one start
+fi
+
+echo
+echo '*** Waiting for identity generation...'
+
+while [ ! -f /var/lib/zerotier-one/identity.secret ]; do
+	sleep 1
+done
+
+echo
+echo "*** Success! You are ZeroTier address [ `cat /var/lib/zerotier-one/identity.public | cut -d : -f 1` ]."
+echo
+## END REPLACE
+
+# zerotier-cli join $ZTNETWORK
+
+# ZTADDRESS=$(zerotier-cli -j info|jq ".address"| tr -d '"')
+# if [ -n "$SLACK_WEBHOOK_URL" ]; then slack -u $HOSTNAME -e $ICON_EMOJI "My ZeroTier address is $ZTADDRESS" ; fi
+# curl -H "Authorization: bearer $ZTAPI" -H "Content-Type: application/json" -X POST -d '{ "config":{ "authorized": true } }' https://my.zerotier.com/api/network/$ZTNETWORK/member/$ZTADDRESS
+# curl -H "Authorization: bearer $ZTAPI" -H "Content-Type: application/json" -X POST -d '{ "name":"'$(hostname)'" }' https://my.zerotier.com/api/network/$ZTNETWORK/member/$ZTADDRESS
+
+# COUNTER=9
+
+# while [  $COUNTER -gt 0 ] && [ -z "$ZTIP" ]; do
+#   ZTIP=$(zerotier-cli get $ZTNETWORK ip4)
+#   if [ -n "$ZTIP" ]; then
+#     if [ -n "$SLACK_WEBHOOK_URL" ]; then slack -u $HOSTNAME -e $ICON_EMOJI "My ZeroTier IP is $ZTIP. VM customization Complete." ; fi
+#     echo ZeroTier IP: $ZTIP
+#   fi
+#   sleep 10
+#   let COUNTER-=1
+# done
+
+# if [ -z "$ZTIP" ]; then
+#   if [ -n "$SLACK_WEBHOOK_URL" ]; then slack -u $HOSTNAME -e $ICON_EMOJI "Could not determine ZeroTier IP. VM customization complete." ; fi
+# fi
+
+exit 0
