@@ -6,7 +6,7 @@ TMP_ZEROTIER_NETWORK=""
 TMP_ZEROTIER_MEMBER=""
 
 zt_get_token() {
-    docker exec -u root -t -i zu-main cat /app/backend/data/db.json | jq '.users[0].token' | tr '"' ' ' | xargs
+    docker exec -u root zu-main cat /app/backend/data/db.json | jq '.users[0].token' | tr '"' ' ' | xargs
 }
 
 zt_get_networks() {
