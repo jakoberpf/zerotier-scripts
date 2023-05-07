@@ -24,8 +24,7 @@ setup() {
     DIR="$( cd "$( dirname "$BATS_TEST_FILENAME" )" >/dev/null 2>&1 && pwd )"
     PATH="$DIR/../src:$PATH"
 
-    docker-compose --file test/docker-compose.yaml build
-    docker-compose --file test/docker-compose.yaml up -d
+    docker compose --file test/docker-compose.yaml up -d
 
     TMP_ZEROTIER_TOKEN=$(zt_get_token)
 
@@ -60,7 +59,5 @@ setup() {
 
 teardown() {
     cd ../
-    docker-compose --file test/docker-compose.yaml down
-    docker system prune --force 
-    docker volume prune --force 
+    docker compose --file test/docker-compose.yaml down
 }
