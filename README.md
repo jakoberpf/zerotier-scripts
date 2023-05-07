@@ -13,3 +13,5 @@ The leave script can be run without any variables. Note that the leave script wi
 If python/pip is installed and the the environment variable SLACK_WEBHOOK_URL is set, this script will post output to slack.
 
 If successful, this will join/authorize the host it is executed on to the ZeroTier network specified. There is no input validation or error checking done. Use at your own risk :smile:
+
+https://github.com/KimTholstorf/zerotier-scripts
