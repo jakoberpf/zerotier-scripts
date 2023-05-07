@@ -2,15 +2,20 @@ version: "3.3"
 
 services:
 
-  # client:
-  #   build: ../
-  #   image: jakoberpf/zerotier-client
-  #   restart: unless-stopped
-  #   depends_on:
-  #     - zerotier
-  #     - zero-ui
-  #   volumes:
-  #     - client_data:/var/lib/zerotier-one
+  client:
+    build: ../
+    image: jakoberpf/zerotier-client
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+    devices: 
+      - /dev/net/tun
+    depends_on:
+      - zerotier
+      - zero-ui
+    volumes:
+      - client_data:/var/lib/zerotier-one
 
   zerotier:
     image: dec0dos/zerotier-controller:latest
@@ -41,6 +46,6 @@ services:
       - "4000:4000"
 
 volumes:
-  # client_data:
+  client_data:
   controller_data:
   zero-ui_data:
