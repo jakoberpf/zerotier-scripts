@@ -43,10 +43,8 @@ setup() {
     assert_output --partial 'Success!'
     run bash -c "docker exec -u root -it zerotier-scripts-client-1 zerotier-cli info | cut -d ' ' -f 1 | xargs"
     assert_output '200'
-
     # networks=$(zt_get_networks $TMP_ZEROTIER_TOKEN)
     # run echo "$networks" | jq -r '.[] | .id'
-
     # assert_output '31c8623e7953437d217cd860dcff5b1d'
 }
 
@@ -58,6 +56,5 @@ setup() {
 }
 
 teardown() {
-    cd ../
     docker compose --file docker-compose.yaml down
 }
