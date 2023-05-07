@@ -335,7 +335,12 @@ if [ -e /usr/bin/systemctl -o -e /usr/sbin/systemctl -o -e /sbin/systemctl -o -e
 		echo '*** Package installed but cannot start service! You may be in a Docker'
 		echo '*** container or using a non-standard init service.'
 		echo
-		exit 1
+		if [ -f /.dockerenv ]; then
+			echo "Apparently you are running in Docker, ignoring initialization and trying to strat daemon";
+			$SUDO /usr/sbin/zerotier-one -d
+		else
+			exit 1
+		fi
 	fi
 else
 	if [ -e /sbin/update-rc.d -o -e /usr/sbin/update-rc.d -o -e /bin/update-rc.d -o -e /usr/bin/update-rc.d ]; then
