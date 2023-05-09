@@ -19,4 +19,4 @@ jobs:
       - name: Run Tests
         working-directory: ./test
         run: |
-          ./bats/bin/bats test.bats
+          ./bats/bin/bats install.bats
