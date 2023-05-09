@@ -42,6 +42,7 @@ setup() {
     assert_output --partial 'Success!'
     run bash -c "docker exec -u root zerotier-scripts-client-1 zerotier-cli info | cut -d ' ' -f 1 | xargs"
     assert_output '200'
+    # TODO simply join network and verify successfull join
 }
 
 teardown() {
