@@ -1,22 +1,72 @@
-name: test
+name: main
 
-on: 
-  - push
-  - pull_request
+on:
+  push:
+    branches:
+      - master
 
 jobs:
-  action:
+  test:
+    name: Run tests
+
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
         with:
           submodules: recursive
-      - name: Build Images
+
+      - name: Build images
         working-directory: ./test
         run: |
           docker compose -f docker-compose.yaml build
-      - name: Run Tests
+
+      - name: Run tests
         working-directory: ./test
         run: |
           ./helpers/bats/bin/bats install.bats
+
+  docker:
+    name: Build and push image
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # - run: echo "TAG=${GITHUB_REF#refs/*/}" | tee -a $GITHUB_ENV
+      # - run: echo "BRANCH=$(git branch -a --contains ${{ env.TAG }} | grep -v HEAD | cut -d '/' -f3)" | tee -a $GITHUB_ENV
+      - run: echo "BRANCH=${GITHUB_REF##*/}" >> $GITHUB_ENV
+
+      - name: Build image and push to Docker Hub tagged with the branchname
+        uses: docker/build-push-action@v2
+        with:
+          # relative path to the place where source code with Dockerfile is located
+          context: .
+          platforms: linux/amd64,linux/arm64
+          # Note: tags has to be all lower-case
+          tags: | # ${{ env.TAG }}${{ env.BRANCH }}
+            jakoberpf/zerotier-scripts:${{ env.BRANCH }} 
+          # build on feature branches, push only on master branch
+          push: ${{ github.ref != 'refs/heads/main' }}
+          build-args: |
+              BRANCH=${{ env.BRANCH }} 
+          # | sed -r 's,/,-,g'
+
+      - name: Image digest
+        run: echo ${{ steps.docker_build.outputs.digest }}
