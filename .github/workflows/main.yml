@@ -53,10 +53,11 @@ jobs:
         with:
           images: jakoberpf/zerotier-scripts
 
-      - name: Build image and push to Docker Hub tagged with plain
+      - name: Build image and push to Docker Hub tagged with scripts
         uses: docker/build-push-action@v4
         with:
-          context: ./Dockerfile-plain
+          context: .
+          file: Dockerfile-scripts
           platforms: linux/amd64,linux/arm64
           push: true
           tags: jakoberpf/zerotier-scripts:scripts
@@ -65,7 +66,8 @@ jobs:
       - name: Build image and push to Docker Hub tagged with latest
         uses: docker/build-push-action@v4
         with:
-          context: ./Dockerfile-latest
+          context: .
+          file: Dockerfile-latest
           platforms: linux/amd64,linux/arm64
           push: true
           tags: jakoberpf/zerotier-scripts:latest
