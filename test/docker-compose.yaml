@@ -5,7 +5,7 @@ services:
   client:
     build: 
       context: ../
-      dockerfile: Dockerfile-scripts
+      dockerfile: test/Dockerfile
     image: jakoberpf/zerotier-client
     restart: unless-stopped
     cap_add:

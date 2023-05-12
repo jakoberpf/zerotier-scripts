@@ -57,11 +57,19 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: Dockerfile-scripts
+          file: test/Dockerfile-scripts
           platforms: linux/amd64,linux/arm64
           push: true
           tags: jakoberpf/zerotier-scripts:scripts
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: jakoberpf/zerotier-client
+
+      - run: echo "VERSION_TAG=${cat Dockerfile | grep VERSION -m 1 | tr "=" " " | cut -d " " -f3}" | tee -a $GITHUB_ENV
 
       - name: Build image and push to Docker Hub tagged with latest
         uses: docker/build-push-action@v4
@@ -70,5 +78,7 @@ jobs:
           file: Dockerfile-latest
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: jakoberpf/zerotier-scripts:latest
+          tags: |
+            jakoberpf/zerotier-client:latest
+            jakoberpf/zerotier-client:${{ env.VERSION_TAG }}
           labels: ${{ steps.meta.outputs.labels }}
