@@ -1,4 +1,4 @@
-FROM centos:7
+FROM centos:8
 
 COPY zerotier-installer.sh /zerotier-installer.sh
 COPY zerotier-start.sh /zerotier-start.sh
