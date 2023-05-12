@@ -1,6 +1,5 @@
-# from https://github.com/zerotier/ZeroTierOne/blob/dev/Dockerfile.release
-
 FROM debian:bullseye
+LABEL maintainer="github@jakoberpf.de"
 
 ARG VERSION=1.10.6
 
