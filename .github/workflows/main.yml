@@ -57,7 +57,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: test/Dockerfile-scripts
+          file: test/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
           tags: jakoberpf/zerotier-scripts:scripts
@@ -75,7 +75,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: Dockerfile-latest
+          file: Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
