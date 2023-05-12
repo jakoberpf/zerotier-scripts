@@ -39,6 +39,13 @@ setup() {
 
 @test "should install zerotier" {
     run bash -c "docker exec -u root zerotier-scripts-client-1 /zerotier-installer.sh | tail -2"
+    assert_output --partial 'Complete!'
+}
+
+@test "should start zerotier" {
+    run bash -c "docker exec -u root zerotier-scripts-client-1 /zerotier-installer.sh | tail -2"
+    assert_output --partial 'Complete!'
+    run bash -c "docker exec -u root zerotier-scripts-client-1 /zerotier-start.sh | tail -2"
     assert_output --partial 'Success!'
     run bash -c "docker exec -u root zerotier-scripts-client-1 zerotier-cli info | cut -d ' ' -f 1 | xargs"
     assert_output '200'

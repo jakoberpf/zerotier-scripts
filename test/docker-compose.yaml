@@ -3,7 +3,9 @@ name: zerotier-scripts
 services:
 
   client:
-    build: ../
+    build: 
+      context: ../
+      dockerfile: Dockerfile-scripts
     image: jakoberpf/zerotier-client
     restart: unless-stopped
     cap_add:
