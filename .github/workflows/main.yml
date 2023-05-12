@@ -48,7 +48,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Extract metadata (tags, labels) for Docker
-        id: meta
+        id: meta-scripts
         uses: docker/metadata-action@v4
         with:
           images: jakoberpf/zerotier-scripts
@@ -61,10 +61,10 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: jakoberpf/zerotier-scripts:scripts
-          labels: ${{ steps.meta.outputs.labels }}
+          labels: ${{ steps.meta-scripts.outputs.labels }}
 
       - name: Extract metadata (tags, labels) for Docker
-        id: meta
+        id: meta-client
         uses: docker/metadata-action@v4
         with:
           images: jakoberpf/zerotier-client
@@ -81,4 +81,4 @@ jobs:
           tags: |
             jakoberpf/zerotier-client:latest
             jakoberpf/zerotier-client:${{ env.VERSION_TAG }}
-          labels: ${{ steps.meta.outputs.labels }}
+          labels: ${{ steps.meta-client.outputs.labels }}
