@@ -22,8 +22,10 @@ setup() {
     load 'helpers/bats-assert/load'
     load 'helpers/bats-file/load'
     DIR="$( cd "$( dirname "$BATS_TEST_FILENAME" )" >/dev/null 2>&1 && pwd )"
-    PATH="$DIR/../src:$PATH"
+    PATH="$DIR/../src:$PATH" 
+}
 
+setup_file() {
     docker compose --file docker-compose.yaml up -d
 
     TMP_ZEROTIER_TOKEN=$(zt_get_token)
@@ -44,6 +46,6 @@ setup() {
     assert_output '200'
 }
 
-teardown() {
+teardown_file() {
     docker compose --file docker-compose.yaml down
 }
