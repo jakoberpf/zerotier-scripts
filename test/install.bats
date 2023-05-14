@@ -26,10 +26,18 @@ setup() {
 }
 
 setup_file() {
+    # Build all docker images
+    docker compose build
+    # Start docker compose
     docker compose --file docker-compose.yaml up -d
-
+    # Wait for Zerotier Controller to be ready
+    while ! curl --silent --fail http://localhost:4000; do
+        echo >&2 'Site down, retrying in 1s...'
+        sleep 1
+    done
+    # Get Zerotier Controller API token
     TMP_ZEROTIER_TOKEN=$(zt_get_token)
-
+    # Check if Zerotier Network is available, if not create new Network
     if [ "$(zt_get_networks $TMP_ZEROTIER_TOKEN | xargs)"="[]" ]; then
         echo "No networks created, creating new one"
         zt_create_network $TMP_ZEROTIER_TOKEN
