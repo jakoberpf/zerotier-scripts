@@ -49,7 +49,7 @@ jobs:
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta-scripts
-        uses: docker/metadata-action@v4
+        uses: docker/metadata-action@v5
         with:
           images: jakoberpf/zerotier-scripts
 
@@ -65,7 +65,7 @@ jobs:
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta-client
-        uses: docker/metadata-action@v4
+        uses: docker/metadata-action@v5
         with:
           images: jakoberpf/zerotier-client
 
