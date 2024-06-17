@@ -54,7 +54,7 @@ jobs:
           images: jakoberpf/zerotier-scripts
 
       - name: Build image and push to Docker Hub tagged with scripts
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: test/Dockerfile
@@ -72,7 +72,7 @@ jobs:
       - run: echo "VERSION_TAG=$(cat Dockerfile | grep VERSION -m 1 | tr "=" " " | cut -d " " -f3)" >> $GITHUB_ENV
 
       - name: Build image and push to Docker Hub tagged with latest
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: Dockerfile
