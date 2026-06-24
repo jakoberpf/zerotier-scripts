@@ -1,4 +1,4 @@
-FROM debian:bullseye
+FROM debian:bullseye-20260623
 LABEL maintainer="github@jakoberpf.de"
 
 ARG VERSION=1.10.6
